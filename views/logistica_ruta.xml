@@ -1,0 +1,26 @@
+<openerp>
+    <data>
+        <record id="logistica_ruta_tree" model="ir.ui.view">
+            <field name="name">logistica.ruta.tree</field>
+            <field name="model">logistica.ruta</field>
+            <field name="arch" type="xml">
+                <tree editable="top">
+                    <field name="origen" required="1"/>
+                    <field name="destino" required="1"/>
+                    <field name="tipo_ruta" required="1"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="action_logistica_ruta" model="ir.actions.act_window">
+            <field name="name">Rutas de transporte</field>
+            <field name="res_model">logistica.ruta</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="logistica_ruta_tree" />
+        </record>
+
+        <menuitem string="Rutas de transporte" action="action_logistica_ruta" id="menu_logistica_ruta"
+                  parent="menu_logistica_configuracion" sequence="0"/>
+    </data>
+</openerp>

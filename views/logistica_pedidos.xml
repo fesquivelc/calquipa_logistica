@@ -1,0 +1,42 @@
+<openerp>
+    <data>
+        <record id="pedidos_transporte_tree" model="ir.ui.view">
+            <field name="name">rpt_pedidos_logistica.tree</field>
+            <field name="model">rpt_pedidos_logistica</field>
+            <field name="arch" type="xml">
+                <tree string="Pedidos de transporte" create="false" editable="false">
+                    <field name="partner_id"/>
+                    <field name="order_id"/>
+                    <field name="order_exportacion"/>
+                    <field name="date_order"/>
+                    <field name="invoice_id" />
+                    <field name="product_id" />
+                    <field name="precio_venta_unitario" />
+                    <field name="cantidad_transportada" />
+                    <field name="uom_id" />
+                    <field name="picking_id" />
+                    <field name="guia_remision_impresa" />
+                    <field name="transportista_id" />
+                    <field name="servicio_id" />
+                    <field name="ruta_id" />
+                    <field name="transportista_precio_unitario" />
+                    <field name="valor_sin_igv" />
+                    <field name="promedio" />
+                </tree>
+            </field>
+        </record>
+
+        <record id="action_pedidos_compra" model="ir.actions.act_window">
+            <field name="name">Pedidos de compra transp.</field>
+            <field name="res_model">rpt_pedidos_logistica</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="pedidos_transporte_tree" />
+        </record>
+
+        <menuitem string="Pedidos de compra transp." action="action_pedidos_compra" id="menu_compras_logistica"
+                  parent="purchase.menu_procurement_management" sequence="50"/>
+
+
+    </data>
+</openerp>

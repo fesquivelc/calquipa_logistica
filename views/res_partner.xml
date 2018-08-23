@@ -1,0 +1,14 @@
+<openerp>
+    <data>
+        <record model="ir.ui.view" id="res_partner_transport">
+            <field name="name">res.partner.transport</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="calquipa_personalizacion_it.view_partner_form" />
+            <field name="arch" type="xml">
+                <field name="is_controlate" position="before">
+                    <field name="transportista" attrs="{'invisible': [('supplier','=',False)]}"/>
+                </field>
+            </field>
+        </record>
+    </data>
+</openerp>

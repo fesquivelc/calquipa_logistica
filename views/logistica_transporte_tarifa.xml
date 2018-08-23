@@ -1,0 +1,98 @@
+<openerp>
+    <data>
+        <record id="transporte_tarifa_tree" model="ir.ui.view">
+            <field name="name">transporte.tarifa.tree</field>
+            <field name="model">logistica.transporte.tarifa</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="partner_id"/>
+                    <field name="direccion"/>
+                    <field name="exportacion"/>
+                    <field name="invoice_id"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="transporte_tarifa_form" model="ir.ui.view">
+            <field name="name">transporte.tarifa.form</field>
+            <field name="model">logistica.transporte.tarifa</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="partner_id"
+                                   domain="[('customer','=',True)]"
+                                   context="{'default_customer' : True}"/>
+                            <field name="direccion"/>
+                            <field name="exportacion" attrs="{'invisible': [('partner_id','=',False)]}"/>
+                            <field name="invoice_id"
+                                   domain="[('partner_id','=',partner_id)]"
+                                   attrs="{'invisible': [('exportacion','=',False)], 'required': [('exportacion','!=',False)]}"/>
+                            <field name="ruta_internacional_id"
+                                   domain="[('tipo_ruta','=','i')]"
+                                   context="{'default_tipo_ruta': 'i'}"
+                                   attrs="{'invisible': [('exportacion','=',False)], 'required': [('exportacion','!=',False)]}"/>
+                        </group>
+                        <notebook>
+                            <page string="Datos de transportista" name="datos_transportista">
+                                <field name="transporte_linea_ids" nolabel="1" widget="one2many_list"
+                                       context="{'default_tipo': 'transportista'}">
+                                    <tree string="Datos de transportista" editable="bottom">
+                                        <field name="tipo" invisible="1"/>
+                                        <field name="transportista_id"
+                                               domain="[('supplier','=',True),('transportista','=',True)]"
+                                               context="{'default_supplier': True, 'default_is_company': True, 'default_transportista': True}"/>
+                                        <field name="ruta_id" domain="[('tipo_ruta','=','n')]"
+                                               context="{'default_tipo_ruta': 'n'}"/>
+                                        <field name="product_id"/>
+                                        <field name="descripcion"/>
+                                        <field name="transporte_tipo_id" required="1"/>
+                                        <field name="precio_unitario"/>
+                                        <field name="currency_id"/>
+                                        <field name="tax_id"/>
+                                        <field name="imponible" readonly="1"/>
+                                        <field name="igv" readonly="1"/>
+                                        <field name="subtotal" readonly="1"/>
+                                        <field name="archivado" string="Archivar"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Gastos de exportación" name="gastos_exportacion"
+                                  attrs="{'invisible': [('exportacion','=',False)]}">
+                                <field name="exportacion_linea_ids" nolabel="1" widget="one2many_list"
+                                       context="{'default_tipo': 'gasto_exportacion', 'default_ruta_id': ruta_internacional_id}" >
+                                    <tree string="Gastos de exportación" editable="bottom">
+                                        <field name="tipo" invisible="1"/>
+                                        <field name="transportista_id" domain="[('supplier','=',True)]"
+                                               context="{'default_supplier': True, 'default_is_company': True}"/>
+                                        <field name="ruta_id" domain="[('tipo_ruta','=','i')]"
+                                               context="{'default_tipo_ruta': 'i'}" readonly="1"/>
+                                        <field name="product_id"/>
+                                        <field name="descripcion"/>
+                                        <field name="precio_unitario"/>
+                                        <field name="currency_id"/>
+                                        <field name="tax_id"/>
+                                        <field name="imponible" readonly="1"/>
+                                        <field name="igv" readonly="1"/>
+                                        <field name="subtotal" readonly="1"/>
+                                        <field name="archivado" string="Archivar"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_transporte_tarifa" model="ir.actions.act_window">
+            <field name="name">Tarifas de transporte</field>
+            <field name="res_model">logistica.transporte.tarifa</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <menuitem string="Tarifas de transporte" action="action_transporte_tarifa" id="menu_transporte_tarifa"
+                  parent="menu_logistica_configuracion" sequence="10"/>
+    </data>
+</openerp>

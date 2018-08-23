@@ -1,0 +1,24 @@
+<openerp>
+    <data>
+        <record id="logistica_transporte_tipo_tree" model="ir.ui.view">
+            <field name="name">logistica.transporte.tipo.tree</field>
+            <field name="model">logistica.transporte.tipo</field>
+            <field name="arch" type="xml">
+                <tree editable="top">
+                    <field name="name" required="1"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="action_transporte_tipo" model="ir.actions.act_window">
+            <field name="name">Tipos de transporte</field>
+            <field name="res_model">logistica.transporte.tipo</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="logistica_transporte_tipo_tree" />
+        </record>
+
+        <menuitem string="Tipos de transporte" action="action_transporte_tipo" id="menu_transporte_tipo"
+                  parent="menu_logistica_configuracion" sequence="5"/>
+    </data>
+</openerp>

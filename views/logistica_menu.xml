@@ -1,0 +1,7 @@
+<openerp>
+    <data>
+        <menuitem id="menu_logistica_configuracion"
+                  string="Datos de transporte"
+                  parent="base.menu_base_config" sequence="40"/>
+    </data>
+</openerp>

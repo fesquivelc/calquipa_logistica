@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_calquipa_logistica_calquipa_logistica,calquipa_logistica.calquipa_logistica,model_calquipa_logistica_calquipa_logistica,,1,0,0,0

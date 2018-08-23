@@ -1,0 +1,18 @@
+<openerp>
+    <data>
+        <record model="ir.ui.view" id="stock_picking_form">
+            <field name="name">stock.picking.form</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="kardex.view_picking_form_kardex"/>
+            <field name="arch" type="xml">
+                <field name="partner_deliver_id" position="after">
+                    <field name="order_transporte" readonly="1" />
+                    <field name="transportista_id"
+                           domain="[('transportista','=',True)]"
+                           attrs="{'invisible':[('order_transporte','=',False)]}" />
+                    <field name="guia_remision" attrs="{'invisible': [('order_transporte','=',False)]}"  />
+                </field>
+            </field>
+        </record>
+    </data>
+</openerp>
