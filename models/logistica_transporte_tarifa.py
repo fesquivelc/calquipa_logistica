@@ -28,12 +28,13 @@ class TarifaTransporte(models.Model):
     @api.model
     @api.returns('self', lambda value: value.id)
     def create(self, vals):
-        if vals.get('transporte_linea_ids', False):
+        if vals.get('transporte_linea_ids', False) or vals.get('exportacion_linea_ids', False):
             lineas = []
             operaciones = []
-            for (a, b, linea) in vals.get('transporte_linea_ids'):
+            for (a, b, linea) in vals.get('transporte_linea_ids',[]):
                 lineas.append((0, 0, self.procesar_precios(linea)))
-            for (a, b, linea) in vals.get('exportacion_linea_ids'):
+            for (a, b, linea) in vals.get('exportacion_linea_ids',[]):
+                linea.update({'ruta_id': vals.get('ruta_internacional_id', False)})
                 operaciones.append((0, 0, self.procesar_precios(linea)))
             vals.update({
                 'transporte_linea_ids': lineas,
@@ -41,6 +42,22 @@ class TarifaTransporte(models.Model):
             })
 
         return super(TarifaTransporte, self).create(vals)
+
+    @api.multi
+    def write(self, vals):
+        if vals.get('transporte_linea_ids', False) or vals.get('exportacion_linea_ids', False):
+            lineas = []
+            operaciones = []
+            for (a, b, linea) in vals.get('transporte_linea_ids',[]):
+                lineas.append((0, 0, self.procesar_precios(linea)))
+            for (a, b, linea) in vals.get('exportacion_linea_ids',[]):
+                linea.update({'ruta_id': vals.get('ruta_internacional_id', False)})
+                operaciones.append((0, 0, self.procesar_precios(linea)))
+            vals.update({
+                'transporte_linea_ids': lineas,
+                'exportacion_linea_ids': operaciones
+            })
+        return super(TarifaTransporte, self).write(vals)
 
     @api.onchange('partner_id')
     def onchange_partner_id(self):
