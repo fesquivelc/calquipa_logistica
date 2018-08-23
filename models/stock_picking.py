@@ -22,14 +22,15 @@ class StockPickingTransporte(models.Model):
             for tline in self.order_transporte_line_ids:
                 for mline in self.move_lines:
                     if tline.product_id == mline.product_id:
+                        partner_id = self.partner_id.parent_id and self.partner_id.parent_id.id or self.partner_id
                         conteo = self.env['logistica.transporte.tarifa.linea'].search_count(
-                            [('transporte_tarifa_partner_id', '=', self.partner_id.id),
+                            [('transporte_tarifa_partner_id', '=', partner_id.id),
                              ('transporte_tipo_id', '=', tline.tipo_transporte_id.id),
                              ('ruta_id', '=', tline.ruta_nacional_id.id),
                              ('transportista_id', '=', self.transportista_id.id)])
                         if conteo == 0:
                             mensaje = mensaje + 'partner_id: {}, tranporte_tipo_id: {}, ruta_id: {}-{}, transportista_id: {} \n'.format(
-                                self.partner_id.name, tline.tipo_transporte_id.name, tline.ruta_nacional_id.origen,tline.ruta_nacional_id.destino,
+                                partner_id.name, tline.tipo_transporte_id.name, tline.ruta_nacional_id.origen,tline.ruta_nacional_id.destino,
                                 self.transportista_id.name)
 
                             validado = False
