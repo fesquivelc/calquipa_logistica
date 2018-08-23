@@ -32,6 +32,7 @@
         'views/res_partner.xml',
         'views/stock_picking.xml',
         'views/logistica_pedidos.xml',
+        'wizard/purchase_wizard.xml',
     ],
     # only loaded in demonstration mode
     'demo': [

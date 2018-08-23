@@ -16,7 +16,7 @@ class ReportLogisticaPedidos(models.Model):
     order_exportacion = fields.Boolean(u'Exportación', readonly=True)
     date_order = fields.Datetime(u'Fecha de ped. de vtas', readonly=True)
     invoice_id = fields.Many2one('account.invoice', string=u'Factura relacionada', readonly=True)
-    product_id = fields.Many2one('product.product', string=u'Producto', readonly=True)
+    product_id = fields.Many2one('product.product', string=u'Producto / Servicio', readonly=True)
     precio_venta_unitario = fields.Float(string='Precio unit.', readonly=True,
                                          digits=dp.get_precision('Product Price'))
     cantidad_transportada = fields.Float(string='Cantidad transp.',
@@ -29,6 +29,7 @@ class ReportLogisticaPedidos(models.Model):
     ruta_id = fields.Many2one('logistica.ruta', string=u'Ruta', readonly=True)
     transportista_precio_unitario = fields.Float(string=u'Costo unitario', readonly=True,
                                                  digits=dp.get_precision('Product Price'))
+    tarifa_linea_id = fields.Many2one('logistica.transporte.tarifa.linea', readonly=True)
     valor_sin_igv = fields.Float(string=u'Subtotal', readonly=True,
                                  digits=dp.get_precision('Account'))
     promedio = fields.Float(string=u'Promedio', readonly=True,
@@ -38,7 +39,7 @@ class ReportLogisticaPedidos(models.Model):
         tools.drop_view_if_exists(cr, 'rpt_pedidos_logistica')
         cr.execute(""" 
         CREATE VIEW rpt_pedidos_logistica AS 
-        SELECT
+SELECT
   sm.id as id,
   so.partner_id as partner_id,
   so.id as order_id,
@@ -56,7 +57,8 @@ class ReportLogisticaPedidos(models.Model):
   ll.ruta_id as ruta_id,
   ll.precio_unitario as transportista_precio_unitario,
   ll.precio_unitario * sm.product_qty as valor_sin_igv,
-  ((sl.price_unit * sm.product_qty) - (ll.precio_unitario * sm.product_qty)) / sm.product_qty as promedio
+  ((sl.price_unit * sm.product_qty) - (ll.precio_unitario * sm.product_qty)) / sm.product_qty as promedio,
+  ll.id as tarifa_linea_id
 
 FROM stock_picking sp
   INNER JOIN sale_order so ON sp.origin = so.name
@@ -70,7 +72,42 @@ FROM stock_picking sp
         AND tarifa.id = ll.transporte_tarifa_id
         AND ll.transporte_tipo_id = tl.tipo_transporte_id
          AND ll.ruta_id =tl.ruta_nacional_id
-WHERE
-  sp.state NOT IN ('draft','cancel','waiting')
-        
+  WHERE
+    sp.state in ('done')
+
+UNION
+  
+SELECT
+  sm.id * ll.id as id,
+  so.partner_id as partner_id,
+  so.id as order_id,
+  so.exportacion as order_exportacion,
+  so.date_order as date_order,
+  inv.id as invoice_id,
+  sl.product_id as product_id,
+  sl.price_unit as precio_venta_unitario,
+  NULL as cantidad_transportada,
+  NULL as uom_id,
+  NULL as picking_id,
+  NULL as guia_remision_impresa,
+  ll.transportista_id as transportista_id,
+  ll.product_id as servicio_id,
+  ll.ruta_id as ruta_id,
+  ll.precio_unitario as transportista_precio_unitario,
+  ll.precio_unitario as valor_sin_igv,
+  NULL as promedio,
+  ll.id as tarifa_linea_id
+FROM stock_picking sp
+  INNER JOIN sale_order so ON sp.origin = so.name
+  INNER JOIN account_invoice inv ON inv.origin = so.name
+  INNER JOIN stock_move sm ON sp.id = sm.picking_id
+  INNER JOIN sale_order_line sl ON sm.product_id = sl.product_id AND so.id = sl.order_id
+  INNER JOIN sale_order_transporte_linea tl ON tl.product_id = sl.product_id AND tl.order_id = sl.order_id
+  INNER JOIN logistica_transporte_tarifa tarifa ON tarifa.partner_id = so.partner_id OR tarifa.invoice_id = so.invoice_id
+   INNER JOIN logistica_transporte_tarifa_linea ll
+        ON tarifa.id = ll.transporte_tarifa_id
+         AND ll.ruta_id =tl.ruta_internacional_id
+          AND ll.tipo = 'gasto_exportacion'
+  WHERE
+    sp.state in ('done')
         """)

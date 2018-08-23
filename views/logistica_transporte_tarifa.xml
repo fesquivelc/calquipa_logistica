@@ -27,7 +27,7 @@
                             <field name="exportacion" attrs="{'invisible': [('partner_id','=',False)]}"/>
                             <field name="invoice_id"
                                    domain="[('partner_id','=',partner_id)]"
-                                   attrs="{'invisible': [('exportacion','=',False)], 'required': [('exportacion','!=',False)]}"/>
+                                   attrs="{'invisible': [('exportacion','=',False)]}"/>
                             <field name="ruta_internacional_id"
                                    domain="[('tipo_ruta','=','i')]"
                                    context="{'default_tipo_ruta': 'i'}"
