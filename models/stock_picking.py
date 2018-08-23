@@ -34,4 +34,4 @@ class StockPickingTransporte(models.Model):
 
                             validado = False
         if not validado:
-            raise ValidationError(_('El transportista seleccionado no tiene tarifas para todos los productos: {}'.format(mensaje)))
+            raise ValidationError(_('El transportista seleccionado tiene el siguiente error {}'.format(mensaje)))
