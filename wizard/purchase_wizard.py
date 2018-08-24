@@ -29,6 +29,10 @@ class LogisticaPurchaseWizard(models.TransientModel):
 
     purchase_line_ids = fields.Many2many('logistica.purchase.line', 'marcar_hecho_mrp_production',
                                          default=_get_default_purchase_line)
+    def generar_pedido_compra(self):
+        for wizard in self:
+            pass
+
 
 
 
@@ -43,3 +47,8 @@ class LogisticaPurchaseLineWizard(models.TransientModel):
     tax_id = fields.Many2one('account.tax','Impuesto')
     valor_sin_igv = fields.Float('Valor sin IGV', digits=dp.get_precision('Account'))
     origen = fields.Char(u'Orígen')
+
+
+    def crear_pc(self):
+        for linea in self:
+            pass
