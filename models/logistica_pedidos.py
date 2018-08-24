@@ -30,10 +30,12 @@ class ReportLogisticaPedidos(models.Model):
     transportista_precio_unitario = fields.Float(string=u'Costo unitario', readonly=True,
                                                  digits=dp.get_precision('Product Price'))
     tarifa_linea_id = fields.Many2one('logistica.transporte.tarifa.linea', readonly=True)
+    move_id = fields.Many2one('stock.move', readonly=True)
+    purchase_id = fields.Many2one('purchase.order', 'Pedido de compra', related='move_id.purchase_id', readonly=True)
     valor_sin_igv = fields.Float(string=u'Subtotal', readonly=True,
                                  digits=dp.get_precision('Account'))
     promedio = fields.Float(string=u'Promedio', readonly=True,
-                                 digits=dp.get_precision('Account'))
+                            digits=dp.get_precision('Account'))
 
     def init(self, cr):
         tools.drop_view_if_exists(cr, 'rpt_pedidos_logistica')
@@ -58,7 +60,8 @@ SELECT
   ll.precio_unitario as transportista_precio_unitario,
   ll.precio_unitario * sm.product_qty as valor_sin_igv,
   ((sl.price_unit * sm.product_qty) - (ll.precio_unitario * sm.product_qty)) / sm.product_qty as promedio,
-  ll.id as tarifa_linea_id
+  ll.id as tarifa_linea_id,
+  sm.id as move_id
 
 FROM stock_picking sp
   INNER JOIN sale_order so ON sp.origin = so.name
@@ -88,7 +91,7 @@ SELECT
   sl.price_unit as precio_venta_unitario,
   NULL as cantidad_transportada,
   NULL as uom_id,
-  NULL as picking_id,
+  sp.id as picking_id,
   NULL as guia_remision_impresa,
   ll.transportista_id as transportista_id,
   ll.product_id as servicio_id,
@@ -96,7 +99,8 @@ SELECT
   ll.precio_unitario as transportista_precio_unitario,
   ll.precio_unitario as valor_sin_igv,
   NULL as promedio,
-  ll.id as tarifa_linea_id
+  ll.id as tarifa_linea_id,
+  sm.id as move_id
 FROM stock_picking sp
   INNER JOIN sale_order so ON sp.origin = so.name
   INNER JOIN account_invoice inv ON inv.origin = so.name
