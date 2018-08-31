@@ -69,7 +69,8 @@ FROM stock_picking sp
   INNER JOIN stock_move sm ON sp.id = sm.picking_id
   INNER JOIN sale_order_line sl ON sm.product_id = sl.product_id AND so.id = sl.order_id
   INNER JOIN sale_order_transporte_linea tl ON tl.product_id = sl.product_id AND tl.order_id = sl.order_id
-  INNER JOIN logistica_transporte_tarifa tarifa ON tarifa.partner_id = so.partner_id OR tarifa.invoice_id = so.invoice_id
+  INNER JOIN res_partner partner ON so.partner_id = partner.id
+  INNER JOIN logistica_transporte_tarifa tarifa ON tarifa.partner_id = so.partner_id OR tarifa.partner_id = partner.parent_id OR tarifa.invoice_id = so.invoice_id
    INNER JOIN logistica_transporte_tarifa_linea ll
      ON ll.transportista_id = sp.transportista_id
         AND tarifa.id = ll.transporte_tarifa_id
@@ -107,7 +108,8 @@ FROM stock_picking sp
   INNER JOIN stock_move sm ON sp.id = sm.picking_id
   INNER JOIN sale_order_line sl ON sm.product_id = sl.product_id AND so.id = sl.order_id
   INNER JOIN sale_order_transporte_linea tl ON tl.product_id = sl.product_id AND tl.order_id = sl.order_id
-  INNER JOIN logistica_transporte_tarifa tarifa ON tarifa.partner_id = so.partner_id OR tarifa.invoice_id = so.invoice_id
+  INNER JOIN res_partner partner ON so.partner_id = partner.id
+  INNER JOIN logistica_transporte_tarifa tarifa ON tarifa.partner_id = so.partner_id OR tarifa.partner_id = partner.parent_id OR tarifa.invoice_id = so.invoice_id
    INNER JOIN logistica_transporte_tarifa_linea ll
         ON tarifa.id = ll.transporte_tarifa_id
          AND ll.ruta_id =tl.ruta_internacional_id

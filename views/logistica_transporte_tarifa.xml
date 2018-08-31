@@ -21,7 +21,7 @@
                     <sheet>
                         <group>
                             <field name="partner_id"
-                                   domain="[('customer','=',True)]"
+                                   domain="[('customer','=',True),('parent_id','=',False)]"
                                    context="{'default_customer' : True}"/>
                             <field name="direccion"/>
                             <field name="exportacion" attrs="{'invisible': [('partner_id','=',False)]}"/>
