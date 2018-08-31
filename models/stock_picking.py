@@ -22,7 +22,8 @@ class StockPickingTransporte(models.Model):
             for tline in self.order_transporte_line_ids:
                 for mline in self.move_lines:
                     if tline.product_id == mline.product_id:
-                        partner_id = self.partner_id.parent_id and self.partner_id.parent_id or self.partner_id
+                        partner_id = self.partner_id
+                        # partner_id = self.partner_id.parent_id and self.partner_id.parent_id or self.partner_id
                         conteo = self.env['logistica.transporte.tarifa.linea'].search_count(
                             [('transporte_tarifa_partner_id', '=', partner_id.id),
                              ('transporte_tipo_id', '=', tline.tipo_transporte_id.id),
