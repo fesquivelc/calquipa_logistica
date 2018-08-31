@@ -65,7 +65,7 @@ SELECT
 
 FROM stock_picking sp
   INNER JOIN sale_order so ON sp.origin = so.name
-  INNER JOIN account_invoice inv ON inv.origin = so.name
+  INNER JOIN account_invoice inv ON inv.origin = sp.name OR inv.origin = so.name
   INNER JOIN stock_move sm ON sp.id = sm.picking_id
   INNER JOIN sale_order_line sl ON sm.product_id = sl.product_id AND so.id = sl.order_id
   INNER JOIN sale_order_transporte_linea tl ON tl.product_id = sl.product_id AND tl.order_id = sl.order_id
@@ -104,7 +104,7 @@ SELECT
   sm.id as move_id
 FROM stock_picking sp
   INNER JOIN sale_order so ON sp.origin = so.name
-  INNER JOIN account_invoice inv ON inv.origin = so.name
+  INNER JOIN account_invoice inv ON inv.origin = sp.name OR inv.origin = so.name
   INNER JOIN stock_move sm ON sp.id = sm.picking_id
   INNER JOIN sale_order_line sl ON sm.product_id = sl.product_id AND so.id = sl.order_id
   INNER JOIN sale_order_transporte_linea tl ON tl.product_id = sl.product_id AND tl.order_id = sl.order_id
