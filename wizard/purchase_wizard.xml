@@ -9,15 +9,10 @@
                         <field name="purchase_line_ids" required="1" widget="one2many_list">
                             <tree string="Detalle" create="false" editable="true">
                                 <field name="partner_id" readonly="1"/>
-                                <field name="product_id" readonly="1"/>
-                                <field name="name" readonly="1"/>
-                                <field name="product_qty" readonly="1"/>
-                                <field name="precio_unitario" readonly="1"/>
-                                <field name="tax_id" readonly="1"/>
-                                <field name="valor_sin_igv" readonly="1"/>
-                                <field name="location_id" required="1"/>
-                                <field name="pricelist_id" required="1"/>
-                                <field name="origen" readonly="1"/>
+                                <field name="location_id" required="1" />
+                                <field name="pricelist_id" required="1" />
+                                <field name="detalle_ids" invisible="1" />
+                                <field name="detalle_count" readonly="1" />
                             </tree>
                         </field>
                     </group>

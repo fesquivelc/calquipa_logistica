@@ -9,6 +9,7 @@ _logger = logging.getLogger(__name__)
 class SaleOrderTransporte(models.Model):
     _inherit = 'sale.order'
 
+    partner_parent_id = fields.Many2one('res.partner', related='partner_id.parent_id')
     utiliza_transporte = fields.Boolean(u'Utiliza transporte')
     exportacion = fields.Boolean(u'Exportación')
     invoice_id = fields.Many2one('account.invoice', u'Factura relacionada')

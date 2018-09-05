@@ -31,9 +31,9 @@ class TarifaTransporte(models.Model):
         if vals.get('transporte_linea_ids', False) or vals.get('exportacion_linea_ids', False):
             lineas = []
             operaciones = []
-            for (a, b, linea) in vals.get('transporte_linea_ids',[]):
+            for (a, b, linea) in vals.get('transporte_linea_ids', []):
                 lineas.append((0, 0, self.procesar_precios(linea)))
-            for (a, b, linea) in vals.get('exportacion_linea_ids',[]):
+            for (a, b, linea) in vals.get('exportacion_linea_ids', []):
                 linea.update({'ruta_id': vals.get('ruta_internacional_id', False)})
                 operaciones.append((0, 0, self.procesar_precios(linea)))
             vals.update({
@@ -48,9 +48,9 @@ class TarifaTransporte(models.Model):
         if vals.get('transporte_linea_ids', False) or vals.get('exportacion_linea_ids', False):
             lineas = []
             operaciones = []
-            for (a, b, linea) in vals.get('transporte_linea_ids',[]):
+            for (a, b, linea) in vals.get('transporte_linea_ids', []):
                 lineas.append((0, 0, self.procesar_precios(linea)))
-            for (a, b, linea) in vals.get('exportacion_linea_ids',[]):
+            for (a, b, linea) in vals.get('exportacion_linea_ids', []):
                 linea.update({'ruta_id': vals.get('ruta_internacional_id', False)})
                 operaciones.append((0, 0, self.procesar_precios(linea)))
             vals.update({
@@ -121,6 +121,18 @@ class TarifaTransporteLinea(models.Model):
         total_included = impuestos['total_included']
         self.subtotal = self.currency_id.round(total_included)
 
+    def _get_product_id(self):
+        product = self.env['product.product'].search([('default_code', '=', '2363')], limit=1)
+        if product.exists():
+            return product.id
+        return False
+
+    def _get_currency(self):
+        currency = self.env['res.currency'].search([('name', '=', 'USD')], limit=1)
+        if currency.exists():
+            return currency.id
+        return False
+
     tipo = fields.Selection(TIPO_LINEA)
     archivado = fields.Boolean('Archivado', default=False)
     transportista_id = fields.Many2one('res.partner', u'Proveedor', required=True)
@@ -130,11 +142,11 @@ class TarifaTransporteLinea(models.Model):
     transporte_tarifa_partner_id = fields.Many2one('res.partner', related='transporte_tarifa_id.partner_id')
     transporte_tipo_id = fields.Many2one('logistica.transporte.tipo', u'Tipo de transporte')
     transporte_tarifa_exportacion = fields.Boolean(related='transporte_tarifa_id.exportacion')
-    product_id = fields.Many2one('product.product', u'Servicio')
+    product_id = fields.Many2one('product.product', u'Servicio', default=_get_product_id)
     descripcion = fields.Char(u'Descripción')
     tax_id = fields.Many2one('account.tax', u'Impuesto')
     currency_id = fields.Many2one('res.currency', string='Moneda',
-                                  required=True)
+                                  required=True, default=_get_currency)
     precio_unitario = fields.Float(string='Precio unit.', required=True,
                                    digits=dp.get_precision('Product Price'))
 

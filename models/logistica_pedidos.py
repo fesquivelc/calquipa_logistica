@@ -41,79 +41,59 @@ class ReportLogisticaPedidos(models.Model):
         tools.drop_view_if_exists(cr, 'rpt_pedidos_logistica')
         cr.execute(""" 
         CREATE VIEW rpt_pedidos_logistica AS 
-SELECT
-  sm.id as id,
-  so.partner_id as partner_id,
-  so.id as order_id,
-  so.exportacion as order_exportacion,
-  so.date_order as date_order,
-  inv.id as invoice_id,
-  sl.product_id as product_id,
-  sl.price_unit as precio_venta_unitario,
-  sm.product_qty as cantidad_transportada,
-  sm.product_uom as uom_id,
-  sp.id as picking_id,
-  sp.guia_remision as guia_remision_impresa,
-  sp.transportista_id as transportista_id,
-  ll.product_id as servicio_id,
-  ll.ruta_id as ruta_id,
-  ll.precio_unitario as transportista_precio_unitario,
-  ll.precio_unitario * sm.product_qty as valor_sin_igv,
-  ((sl.price_unit * sm.product_qty) - (ll.precio_unitario * sm.product_qty)) / sm.product_qty as promedio,
-  ll.id as tarifa_linea_id,
-  sm.id as move_id
-
-FROM stock_picking sp
-  INNER JOIN sale_order so ON sp.origin = so.name
-  INNER JOIN account_invoice inv ON inv.origin = sp.name OR inv.origin = so.name
-  INNER JOIN stock_move sm ON sp.id = sm.picking_id
-  INNER JOIN sale_order_line sl ON sm.product_id = sl.product_id AND so.id = sl.order_id
-  INNER JOIN sale_order_transporte_linea tl ON tl.product_id = sl.product_id AND tl.order_id = sl.order_id
-  INNER JOIN res_partner partner ON so.partner_id = partner.id
-  INNER JOIN logistica_transporte_tarifa tarifa ON tarifa.partner_id = so.partner_id OR tarifa.partner_id = partner.parent_id OR tarifa.invoice_id = so.invoice_id
-   INNER JOIN logistica_transporte_tarifa_linea ll
-     ON ll.transportista_id = sp.transportista_id
-        AND tarifa.id = ll.transporte_tarifa_id
-        AND ll.transporte_tipo_id = tl.tipo_transporte_id
-         AND ll.ruta_id =tl.ruta_nacional_id
-  WHERE
-    sp.state in ('done')
-
+SELECT sm.id,
+    so.partner_id,
+    so.id AS order_id,
+    so.exportacion AS order_exportacion,
+    so.date_order,
+    inv.id AS invoice_id,
+    sl.product_id,
+    sl.price_unit AS precio_venta_unitario,
+    sm.product_qty AS cantidad_transportada,
+    sm.product_uom AS uom_id,
+    sp.id AS picking_id,
+    sp.guia_remision AS guia_remision_impresa,
+    sp.transportista_id,
+    ll.product_id AS servicio_id,
+    ll.ruta_id,
+    ll.precio_unitario AS transportista_precio_unitario,
+    (ll.precio_unitario * sm.product_qty) AS valor_sin_igv,
+    (((sl.price_unit * sm.product_qty) - (ll.precio_unitario * sm.product_qty)) / sm.product_qty) AS promedio,
+    ll.id AS tarifa_linea_id,
+    sm.id AS move_id
+   FROM ((((((((stock_picking sp
+     JOIN sale_order so ON (((sp.origin)::text = (so.name)::text)))
+     JOIN account_invoice inv ON ((((inv.origin)::text = (sp.name)::text) OR ((inv.origin)::text = (so.name)::text))))
+     JOIN stock_move sm ON ((sp.id = sm.picking_id)))
+     JOIN sale_order_line sl ON (((sm.product_id = sl.product_id) AND (so.id = sl.order_id))))
+     JOIN sale_order_transporte_linea tl ON (((tl.product_id = sl.product_id) AND (tl.order_id = sl.order_id))))
+     JOIN res_partner partner ON ((so.partner_id = partner.id)))
+     JOIN logistica_transporte_tarifa tarifa ON (((tarifa.partner_id = so.partner_id) OR (tarifa.partner_id = partner.parent_id) OR (tarifa.invoice_id = so.invoice_id))))
+     JOIN logistica_transporte_tarifa_linea ll ON (((ll.transportista_id = sp.transportista_id) AND (tarifa.id = ll.transporte_tarifa_id) AND (ll.transporte_tipo_id = tl.tipo_transporte_id) AND (ll.ruta_id = tl.ruta_nacional_id))))
+  WHERE (sp.state = 'done') and ll.tipo = 'transportista'
 UNION
-  
-SELECT
-  sm.id * ll.id as id,
-  so.partner_id as partner_id,
-  so.id as order_id,
-  so.exportacion as order_exportacion,
-  so.date_order as date_order,
-  inv.id as invoice_id,
-  sl.product_id as product_id,
-  sl.price_unit as precio_venta_unitario,
-  NULL as cantidad_transportada,
-  NULL as uom_id,
-  sp.id as picking_id,
-  NULL as guia_remision_impresa,
-  ll.transportista_id as transportista_id,
-  ll.product_id as servicio_id,
-  ll.ruta_id as ruta_id,
-  ll.precio_unitario as transportista_precio_unitario,
-  ll.precio_unitario as valor_sin_igv,
-  NULL as promedio,
-  ll.id as tarifa_linea_id,
-  sm.id as move_id
-FROM stock_picking sp
-  INNER JOIN sale_order so ON sp.origin = so.name
-  INNER JOIN account_invoice inv ON inv.origin = sp.name OR inv.origin = so.name
-  INNER JOIN stock_move sm ON sp.id = sm.picking_id
-  INNER JOIN sale_order_line sl ON sm.product_id = sl.product_id AND so.id = sl.order_id
-  INNER JOIN sale_order_transporte_linea tl ON tl.product_id = sl.product_id AND tl.order_id = sl.order_id
-  INNER JOIN res_partner partner ON so.partner_id = partner.id
-  INNER JOIN logistica_transporte_tarifa tarifa ON tarifa.partner_id = so.partner_id OR tarifa.partner_id = partner.parent_id OR tarifa.invoice_id = so.invoice_id
-   INNER JOIN logistica_transporte_tarifa_linea ll
-        ON tarifa.id = ll.transporte_tarifa_id
-         AND ll.ruta_id =tl.ruta_internacional_id
-          AND ll.tipo = 'gasto_exportacion'
-  WHERE
-    sp.state in ('done')
+ SELECT (so.id * ll.id) AS id,
+     so.partner_id,
+     so.id AS order_id,
+     so.exportacion AS order_exportacion,
+     so.date_order,
+     inv.id AS invoice_id,
+     NULL AS product_id,
+     NULL AS precio_venta_unitario,
+     NULL AS cantidad_transportada,
+     NULL AS uom_id,
+     NULL AS picking_id,
+     NULL AS guia_remision_impresa,
+     ll.transportista_id,
+     ll.product_id AS servicio_id,
+     ll.ruta_id,
+     ll.precio_unitario AS transportista_precio_unitario,
+     ll.precio_unitario AS valor_sin_igv,
+     NULL AS promedio,
+     ll.id AS tarifa_linea_id,
+     NULL AS move_id
+    FROM sale_order so
+      INNER JOIN logistica_transporte_tarifa_linea ll ON so.tarifa_transporte_id = so.tarifa_transporte_id
+      LEFT JOIN account_invoice inv ON so.id = inv.sale_id
+   WHERE so.state in ('progress','sale','none') AND ll.tipo = 'gasto_exportacion' ;
         """)

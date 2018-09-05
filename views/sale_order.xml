@@ -7,6 +7,7 @@
             <field name="inherit_id" ref="sale.view_order_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='partner_shipping_id']" position="after">
+                    <field name="partner_parent_id" invisible="1"/>
                     <field name="utiliza_transporte" invisible="0"
                            attrs="{'readonly': [('state','in',['manual','done'])]}"/>
                     <field name="exportacion"
@@ -14,8 +15,10 @@
                     <field name="invoice_id"
                            attrs="{'invisible': [('exportacion','=',False)], 'readonly': [('state','in',['manual','done'])]}"/>
                     <field name="tarifa_transporte_id"
-                           readonly="1"
-                           attrs="{'invisible': [('exportacion','=',False)]}"/>
+                           domain="[('exportacion','=',True),('partner_id','in',(partner_id, partner_parent_id))]"
+                           attrs="{ 'invisible': [('exportacion','=',False)],
+                                    'readonly': [('state','in',['manual','done'])],
+                                    'required': [('exportacion','=',True)]}"/>
                     <field name="tarifa_transporte_ruta_id"
                            readonly="1"
                            attrs="{'invisible': [('exportacion','=',False)]}"/>
