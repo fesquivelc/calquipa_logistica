@@ -34,6 +34,7 @@ class LogisticaPurchaseWizard(models.TransientModel):
                         'price_unit': linea.transportista_precio_unitario,
                         'tax_id': linea.tarifa_linea_id.tax_id.id,
                         'valor_sin_igv': linea.valor_sin_igv,
+                        'product_id': linea.servicio_id.id
                     }))
             purchase_line_ids.append((0, False, {
                 'partner_id': transportista.id,
@@ -91,7 +92,8 @@ class LogisticaPurchaseLineWizard(models.TransientModel):
                 u'order_line': order_line,
             }
             purchase = self.env['purchase.order'].create(vals)
-            linea.move_id.write({'purchase_id': purchase.id})
+            if linea.move_id:
+                linea.move_id.write({'purchase_id': purchase.id})
 
 
 class LogisticaPurchaseLineDetalleWizard(models.TransientModel):
