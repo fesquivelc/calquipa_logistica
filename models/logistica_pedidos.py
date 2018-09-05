@@ -93,7 +93,7 @@ UNION
      ll.id AS tarifa_linea_id,
      NULL AS move_id
     FROM sale_order so
-      INNER JOIN logistica_transporte_tarifa_linea ll ON so.tarifa_transporte_id = so.tarifa_transporte_id
+      INNER JOIN logistica_transporte_tarifa_linea ll ON so.tarifa_transporte_id = ll.transporte_tarifa_id
       LEFT JOIN account_invoice inv ON so.id = inv.sale_id
    WHERE so.state in ('progress','sale','none') AND ll.tipo = 'gasto_exportacion' ;
         """)
