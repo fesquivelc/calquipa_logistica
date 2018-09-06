@@ -45,6 +45,7 @@ class LogisticaPurchaseWizard(models.TransientModel):
                     'pricelist_id': pricelist_id.exists() and pricelist_id.id or False,
                     'currency_id': currency_id.id,
                     'detalle_ids': detalles,
+                    'detalle_count': len(detalles),
                 }))
         return purchase_line_ids
 
