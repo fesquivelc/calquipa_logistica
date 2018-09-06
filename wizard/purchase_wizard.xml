@@ -5,8 +5,8 @@
             <field name="model">logistica.purchase.wizard</field>
             <field name="arch" type="xml">
                 <form string="Generar pedidos de compra">
-                    <group string="Proyectos" name="proyectos">
-                        <field name="purchase_line_ids" required="1" widget="one2many_list">
+                    <group string="Pedidos de compra" name="pedidos_compra">
+                        <field name="purchase_line_ids" nolabel="1" required="1" widget="one2many_list">
                             <tree string="Detalle" create="false" editable="true">
                                 <field name="partner_id" readonly="1"/>
                                 <field name="location_id" required="1" />

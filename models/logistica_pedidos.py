@@ -31,6 +31,7 @@ class ReportLogisticaPedidos(models.Model):
                                                  digits=dp.get_precision('Product Price'))
     tarifa_linea_id = fields.Many2one('logistica.transporte.tarifa.linea', readonly=True)
     move_id = fields.Many2one('stock.move', readonly=True)
+    exportacion_line_id = fields.Many2one('sale.order.transporte.linea', readonly=True)
     purchase_id = fields.Many2one('purchase.order', 'Pedido de compra', related='move_id.purchase_id', readonly=True)
     valor_sin_igv = fields.Float(string=u'Subtotal', readonly=True,
                                  digits=dp.get_precision('Account'))
@@ -60,7 +61,9 @@ SELECT sm.id,
     (ll.precio_unitario * sm.product_qty) AS valor_sin_igv,
     (((sl.price_unit * sm.product_qty) - (ll.precio_unitario * sm.product_qty)) / sm.product_qty) AS promedio,
     ll.id AS tarifa_linea_id,
-    sm.id AS move_id
+    sm.id AS move_id,
+    NULL AS exportacion_line_id,
+    po.id AS purchase_id
    FROM ((((((((stock_picking sp
      JOIN sale_order so ON (((sp.origin)::text = (so.name)::text)))
      JOIN account_invoice inv ON ((((inv.origin)::text = (sp.name)::text) OR ((inv.origin)::text = (so.name)::text))))
@@ -70,6 +73,7 @@ SELECT sm.id,
      JOIN res_partner partner ON ((so.partner_id = partner.id)))
      JOIN logistica_transporte_tarifa tarifa ON (((tarifa.partner_id = so.partner_id) OR (tarifa.partner_id = partner.parent_id) OR (tarifa.invoice_id = so.invoice_id))))
      JOIN logistica_transporte_tarifa_linea ll ON (((ll.transportista_id = sp.transportista_id) AND (tarifa.id = ll.transporte_tarifa_id) AND (ll.transporte_tipo_id = tl.tipo_transporte_id) AND (ll.ruta_id = tl.ruta_nacional_id))))
+     LEFT JOIN purchase_order po ON sm.purchase_id = po.id
   WHERE (sp.state = 'done') and ll.tipo = 'transportista'
 UNION
  SELECT (so.id * ll.id) AS id,
@@ -78,10 +82,10 @@ UNION
      so.exportacion AS order_exportacion,
      so.date_order,
      inv.id AS invoice_id,
-     NULL AS product_id,
-     NULL AS precio_venta_unitario,
-     NULL AS cantidad_transportada,
-     NULL AS uom_id,
+     sl.product_id AS product_id,
+     sl.price_unit AS precio_venta_unitario,
+     sl.product_uom_qty AS cantidad_transportada,
+     sl.product_uom AS uom_id,
      NULL AS picking_id,
      NULL AS guia_remision_impresa,
      ll.transportista_id,
@@ -91,9 +95,14 @@ UNION
      ll.precio_unitario AS valor_sin_igv,
      NULL AS promedio,
      ll.id AS tarifa_linea_id,
-     NULL AS move_id
+     NULL AS move_id,
+     st.id AS exportacion_line_id,
+     po.id AS purchase_id
     FROM sale_order so
+      INNER JOIN account_invoice inv ON so.name = inv.origin
+      INNER JOIN sale_order_line sl ON so.id = sl.order_id
+      INNER JOIN sale_order_transporte_linea st ON so.id = st.order_id
       INNER JOIN logistica_transporte_tarifa_linea ll ON so.tarifa_transporte_id = ll.transporte_tarifa_id
-      LEFT JOIN account_invoice inv ON so.id = inv.sale_id
+      LEFT JOIN purchase_order po ON st.purchase_id = po.id
    WHERE so.state in ('progress','sale','none') AND ll.tipo = 'gasto_exportacion' ;
         """)

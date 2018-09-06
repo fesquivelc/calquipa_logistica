@@ -4,7 +4,7 @@
             <field name="name">rpt_pedidos_logistica.tree</field>
             <field name="model">rpt_pedidos_logistica</field>
             <field name="arch" type="xml">
-                <tree string="Pedidos de transporte" create="false" editable="false">
+                <tree string="Pedidos de transporte" create="false" editable="false" colors="red:purchase_id==False;grey:purchase_id==True">
                     <field name="partner_id"/>
                     <field name="order_id"/>
                     <field name="order_exportacion"/>
@@ -22,6 +22,7 @@
                     <field name="transportista_precio_unitario" />
                     <field name="valor_sin_igv" />
                     <field name="promedio" />
+                    <field name="purchase_id" />
                 </tree>
             </field>
         </record>

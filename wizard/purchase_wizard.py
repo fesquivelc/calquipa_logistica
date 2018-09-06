@@ -26,7 +26,7 @@ class LogisticaPurchaseWizard(models.TransientModel):
         for transportista in transportistas:
             detalles = []
             for linea in logistica_pedidos:
-                if not linea.move_id.purchase_id and transportista.id == linea.transportista_id.id:
+                if (not linea.move_id.purchase_id and not linea.exportacion_line_id.purchase_id) and transportista.id == linea.transportista_id.id:
                     detalles.append((0, False, {
                         'sequence': detalles and detalles[-1][2]['sequence'] + 10 or 10,
                         'name': linea.servicio_id.name,
@@ -34,15 +34,18 @@ class LogisticaPurchaseWizard(models.TransientModel):
                         'price_unit': linea.transportista_precio_unitario,
                         'tax_id': linea.tarifa_linea_id.tax_id.id,
                         'valor_sin_igv': linea.valor_sin_igv,
-                        'product_id': linea.servicio_id.id
+                        'product_id': linea.servicio_id.id,
+                        'move_id': linea.move_id,
+                        'exportacion_line_id': linea.exportacion_line_id,
                     }))
-            purchase_line_ids.append((0, False, {
-                'partner_id': transportista.id,
-                'location_id': transportista.property_stock_customer.id,
-                'pricelist_id': pricelist_id.exists() and pricelist_id.id or False,
-                'currency_id': currency_id.id,
-                'detalle_ids': detalles,
-            }))
+            if detalles:
+                purchase_line_ids.append((0, False, {
+                    'partner_id': transportista.id,
+                    'location_id': transportista.property_stock_customer.id,
+                    'pricelist_id': pricelist_id.exists() and pricelist_id.id or False,
+                    'currency_id': currency_id.id,
+                    'detalle_ids': detalles,
+                }))
         return purchase_line_ids
 
     purchase_line_ids = fields.Many2many('logistica.purchase.line', 'marcar_hecho_mrp_production',
@@ -62,12 +65,7 @@ class LogisticaPurchaseLineWizard(models.TransientModel):
     location_id = fields.Many2one('stock.location', u'Ubicación de destino', required=True)
     pricelist_id = fields.Many2one('product.pricelist', u'Lista de precios', required=True)
     detalle_ids = fields.One2many('logistica.purchase.line.detalle', 'line_id', 'Detalles')
-    detalle_count = fields.Integer(u'Líneas de pedido', computed='_count_detalle')
-
-    @api.depends('detalle_count')
-    def _count_detalle(self):
-        for line in self:
-            line.detalle_count = len(line.detalle_ids)
+    detalle_count = fields.Integer(u'Líneas de pedido')
 
     @api.multi
     def crear_pc(self):
@@ -92,8 +90,11 @@ class LogisticaPurchaseLineWizard(models.TransientModel):
                 u'order_line': order_line,
             }
             purchase = self.env['purchase.order'].create(vals)
-            if linea.move_id:
-                linea.move_id.write({'purchase_id': purchase.id})
+            for detalle in linea.detalle_ids:
+                if detalle.move_id:
+                    detalle.move_id.write({'purchase_id': purchase.id})
+                elif detalle.exportacion_line_id:
+                    detalle.exportacion_line_id.write({'purchase_id': purchase.id})
 
 
 class LogisticaPurchaseLineDetalleWizard(models.TransientModel):
@@ -107,3 +108,5 @@ class LogisticaPurchaseLineDetalleWizard(models.TransientModel):
     product_uom = fields.Many2one('product.uom')
     tax_id = fields.Many2one('account.tax')
     product_qty = fields.Float()
+    move_id = fields.Many2one('stock.move')
+    exportacion_line_id = fields.Many2one('sale.order.transporte.linea')

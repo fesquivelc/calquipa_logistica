@@ -76,3 +76,4 @@ class SaleOrderTransporteLine(models.Model):
     ruta_nacional_id = fields.Many2one('logistica.ruta', 'Ruta de transporte local', required=True)
     tipo_transporte_id = fields.Many2one('logistica.transporte.tipo', 'Tipo de transporte', required=True)
     ruta_internacional_id = fields.Many2one('logistica.ruta', 'Ruta de transporte internacional')
+    purchase_id = fields.Many2one('purchase.order')

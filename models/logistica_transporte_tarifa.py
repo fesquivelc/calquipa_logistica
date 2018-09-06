@@ -13,6 +13,8 @@ TIPO_LINEA = (
 class TarifaTransporte(models.Model):
     _name = 'logistica.transporte.tarifa'
 
+    codigo = fields.Char(u'Código')
+    active = fields.Boolean(default=True)
     partner_id = fields.Many2one('res.partner', 'Cliente', required=True)
     direccion = fields.Char(u'Dirección', required=True)
     exportacion = fields.Boolean(u'Exportación')
@@ -74,7 +76,8 @@ class TarifaTransporte(models.Model):
             raise ValidationError(u'Si ha marcado el check de exportación debe definir gastos de exp.')
 
     _sql_constraints = [
-        ('invoice_id_uniq', 'unique(invoice_id)', 'Esta factura de exportacion ya se encuentra enlazada anteriormente'),
+        ('codigo_uniq', 'unique(codigo)', u'El código ya es utilizado en otra tarifa'),
+        ('invoice_id_uniq', 'unique(invoice_id)', u'Esta factura de exportacion ya se encuentra enlazada anteriormente'),
     ]
 
     def name_get(self, cr, uid, ids, context=None):
