@@ -21,6 +21,7 @@
                     <sheet>
                         <group>
                             <field name="active" string="Activo"/>
+                            <field name="codigo"/>
                             <field name="partner_id"
                                    domain="[('customer','=',True),('parent_id','=',False)]"
                                    context="{'default_customer' : True}"/>

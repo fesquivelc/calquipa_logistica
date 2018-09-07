@@ -87,12 +87,13 @@ class TarifaTransporte(models.Model):
             return []
         if isinstance(ids, (int, long)):
             ids = [ids]
-        reads = self.read(cr, uid, ids, ['partner_id', 'exportacion'], context=context)
+        reads = self.read(cr, uid, ids, ['partner_id', 'exportacion','codigo'], context=context)
         res = []
         for record in reads:
             partner_id = record['partner_id']
             exportacion = record['exportacion']
-            res.append((record['id'], u'TARIFA: %s ¿EXPORT.?: %s' % (partner_id[1], exportacion and 'si' or 'no')))
+            codigo = record['codigo']
+            res.append((record['id'], u'%sTARIFA: %s ¿EXPORT.?: %s' % (codigo and codigo+' ' or '',partner_id[1], exportacion and 'si' or 'no')))
         return res
 
     def procesar_precios(self, linea):

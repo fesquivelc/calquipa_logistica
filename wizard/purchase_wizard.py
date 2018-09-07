@@ -77,7 +77,7 @@ class LogisticaPurchaseLineWizard(models.TransientModel):
                 u'price_unit': detalle.price_unit,
                 u'product_uom': 1,
                 u'taxes_id': [(6, False, [detalle.tax_id.id])],
-                u'product_qty': detalle.product_qty,
+                u'product_qty': detalle.exportacion_line_id and 1 or detalle.product_qty,
                 u'name': detalle.product_id.name,
                 u'product_id': detalle.product_id.id
             }) for detalle in linea.detalle_ids]
